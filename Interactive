@@ -1,0 +1,115 @@
+import PyPDF2
+import nltk
+import sys
+from termcolor import *
+import colorama
+from colorama import *
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize, sent_tokenize
+from tkinter import *
+from tkinter import ttk
+import os
+import os.path
+
+class stylee:
+        BOLD = '\033[1m'
+        END = '\033[0m'
+
+
+stop_words = set(stopwords.words("english"))
+root = Tk()
+root.title('Retrive This Information')
+style = ttk.Style()
+style.theme_use('winnative')
+label1 = ttk.Label(root, text='Query:')
+label1.grid(row=0, column=0)
+entry1 = ttk.Entry(root, width=40)
+entry1.grid(row=0, column=1, columnspan=4)
+btn2 = StringVar()
+
+def callback():
+    if not btn2.get():
+        querystr = entry1.get()
+        tokens = nltk.word_tokenize(querystr)
+        for fname in os.listdir('.'):
+            if os.path.isfile(fname):
+                    if(fname.endswith('.txt')):
+                        f = open(fname,'r')
+                        file_content = f.read()
+                        f.close()
+                        filtered_sentence = []
+                        for w in tokens:
+                            if w not in stop_words:
+                                filtered_sentence.append(w)
+                        for wrd in filtered_sentence:
+                            if wrd in file_content:
+                                fg = file_content.replace(wrd, colorama.Fore.GREEN + wrd + colorama.Fore.RESET)
+                                file_content=fg
+                            else:
+                                fg="\n"
+
+                        print(fg)
+                        if 'PYCHARM_HOSTED' in os.environ:
+                            convert = False  # in PyCharm, we should disable convert
+                            strip = False
+                        else:
+                            convert = None
+                            strip = None
+
+                        colorama.init(convert=convert, strip=strip)
+
+
+
+                    elif (fname.endswith('.pdf')):
+                        pdf = PyPDF2.PdfFileReader(open(fname, "rb"))
+                        for page in pdf.pages:
+                          file_content = page.extractText()
+                          #print(file_content)
+                          filtered_sentence = []
+
+                          for w in tokens:
+                             if w not in stop_words:
+                                  filtered_sentence.append(w)
+                                  # print(filtered_sentence)
+                          for wrd in filtered_sentence:
+                              if wrd in file_content:
+                                  fg = file_content.replace(wrd, colorama.Fore.GREEN + wrd + colorama.Fore.RESET)
+                                  file_content=fg
+                              else:
+                                  fg=""
+                          print(fg)
+                          if 'PYCHARM_HOSTED' in os.environ:
+                              convert = False  # in PyCharm, we should disable convert
+                              strip = False
+                          else:
+                              convert = None
+                              strip = None
+
+                          colorama.init(convert=convert, strip=strip)
+                    else:
+
+                        pass
+
+       # if c!=1:
+        #print('Information not found')
+            #sys.exit()
+
+
+    else:
+        pass
+
+
+def get(event):
+        if not btn2.get():
+            entry1.get()
+
+        else:
+            pass
+
+
+entry1.bind('<Return>', get)
+MyButton1 = ttk.Button(root, text='Go', width=10, command=callback)
+MyButton1.grid(row=0, column=6)
+entry1.focus()
+root.wm_attributes('-topmost', 1)
+root.mainloop()
